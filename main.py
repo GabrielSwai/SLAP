@@ -1,9 +1,9 @@
 # =====================================================================================
-# LING48/COSC72 Final Project: Surrogate Language Aligner
-# Gabriel Swai (gabriel.a.swai.29@dartmouth.edu)
-# Last modification: 2026/06/07
+# Surrogate Language Aligner
+# Gabriel Swai (gabriel.a.swai@gmail.com)
+# Last modification: 2026/09/14
 #
-# This project is a semi-automatic Python tool for aligning Kinande spoken tone
+# This project is a semi-automatic Python tool for aligning spoken tone
 # patterns with corresponding drummed musical surrogate patterns.
 # =====================================================================================
 
@@ -16,36 +16,14 @@ import parselmouth
 
 # Constants
 
-INPUT = "sample3"
-AUDIO_PATH = Path(f"data/{INPUT}.wav")
-INPUT_TIER = "Surrogate_Transcription-txt-gbe"
-ELAN_INPUT_PATH = Path(f"data/{INPUT}.eaf")
-
-OUTPUT_DIR = Path("outputs")
-OUTPUT_TIERS = {
-    "words": "Surrogate_Words-txt-gbe",
-    "spoken_tones": "Surrogate_Words-tones",
-    "surrogate_tones": "Surrogate_Words-music"
-}
-ELAN_OUTPUT_PATH = OUTPUT_DIR / "aligned_output.eaf"
-
-
-# Function:     load_audio
-# Inputs:       audio_path | file path of audio file to be loaded (Path)
-# Outputs:      y | audio waveform (NumPy array)
-#               sr | sampling rate of the audio waveform, y (int)
-#               d | duration of the audio (float)
-# Description:  Loads an audio file using librosa.
-
-def load_audio(audio_path):
-    # Load the audio file with its original sampling rate
-    y, sr = librosa.load(audio_path, sr=None)
-
-    # Get the duration of the audio file in seconds
-    d = librosa.get_duration(y=y, sr=sr)
-
-    # Return the waveform, sampling rate, and duration
-    return y, sr, d
+from surrogate_aligner.config import (
+    AUDIO_PATH,
+    ELAN_INPUT_PATH,
+    ELAN_OUTPUT_PATH,
+    INPUT_TIER,
+    OUTPUT_DIR,
+    OUTPUT_TIERS,
+)
 
 
 # Function:     load_elan
@@ -62,28 +40,6 @@ def load_elan(elan_path):
 
     # Return the loaded ELAN object
     return eaf
-
-
-# Function:     extract_audio_segment
-# Inputs:       y | audio waveform (NumPy array)
-#               sr | sampling rate of the audio waveform, y (int)
-#               start_time | start time of the segment in seconds (float)
-#               end_time | end time of the segment in seconds (float)
-# Outputs:      y_segment | extracted audio segment (NumPy array)
-# Description:  Extracts a smaller audio segment from the full audio file using start and end times.
-
-def extract_audio_segment(y, sr, start_time, end_time):
-    # Convert start time from seconds to a sample index
-    start_sample = int(start_time * sr)
-
-    # Convert end time from seconds to a sample index
-    end_sample = int(end_time * sr)
-
-    # Slice the waveform to keep only the selected segment
-    y_segment = y[start_sample:end_sample]
-
-    # Return the extracted audio segment
-    return y_segment
 
 
 # Function:     get_elan_segments
