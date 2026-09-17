@@ -1,9 +1,12 @@
-# Input recording name, without the file extension.
+# Input
+
 INPUT = "input-kinande-lute"
 DATA_DIR = "data"
 INPUT_TIER = "Surrogate_Transcription-txt-gbe"
 
-# Output location.
+
+# Output
+
 OUTPUT_DIR = "outputs"
 OUTPUT_FILENAME = "aligned_output.eaf"
 
@@ -11,3 +14,8 @@ OUTPUT_FILENAME = "aligned_output.eaf"
 words = "Surrogate_Words-txt-gbe"
 spoken_tones = "Surrogate_Words-tones"
 surrogate_tones = "Surrogate_Words-music"
+
+
+# Language
+
+LANGUAGE_PROFILE = "kinande"
