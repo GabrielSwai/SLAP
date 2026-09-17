@@ -38,7 +38,7 @@ Those steps are assumed to be completed manually before running the tool. In the
 
 ## ▶️ Running the Aligner
 
-The main code for this project is in `aligner.py`. Before running it, create a virtual environment, activate it, and install the required dependencies from `requirements.txt`.
+The main code for this project is in `main.py`. Before running it, create a virtual environment, activate it, and install the required dependencies from `requirements.txt`.
 
 ### macOS/Linux
 
@@ -46,7 +46,7 @@ The main code for this project is in `aligner.py`. Before running it, create a v
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python aligner.py
+python main.py
 ~~~
 
 ### Windows
@@ -57,7 +57,7 @@ Using Command Prompt:
 python -m venv .venv
 .venv\Scripts\activate.bat
 pip install -r requirements.txt
-python aligner.py
+python main.py
 ~~~
 
 Using PowerShell:
@@ -66,7 +66,7 @@ Using PowerShell:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python aligner.py
+python main.py
 ~~~
 
 ## 📥 Inputs
@@ -113,6 +113,6 @@ surrogate-music-tone-aligner/
 ├── .gitignore
 ├── LICENSE
 ├── README.md
-├── aligner.py
+├── main.py
 └── requirements.txt
 ```

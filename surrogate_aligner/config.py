@@ -1,4 +1,8 @@
-"""Load project settings from config.toml (Python 3.11+)."""
+# =====================================================================================
+# Surrogate Language Aligner
+#
+# Load project settings from config.toml (Python 3.11+).
+# =====================================================================================
 
 from pathlib import Path
 import tomllib
@@ -20,3 +24,23 @@ ELAN_INPUT_PATH = DATA_DIR / f"{INPUT}.eaf"
 OUTPUT_DIR = PROJECT_DIR / config["OUTPUT_DIR"]
 ELAN_OUTPUT_PATH = OUTPUT_DIR / config["OUTPUT_FILENAME"]
 OUTPUT_TIERS = config["OUTPUT_TIERS"]
+
+
+# Function:     build_config
+# Inputs:       None
+# Outputs:      config | file paths and tier names used by the pipeline (dict)
+# Description:  Builds the pipeline configuration from the loaded TOML settings.
+
+def build_config():
+    # Store pipeline settings in one config dictionary
+    config = {
+        "audio_path": AUDIO_PATH,
+        "elan_input_path": ELAN_INPUT_PATH,
+        "input_tier": INPUT_TIER,
+        "output_dir": OUTPUT_DIR,
+        "output_tiers": OUTPUT_TIERS,
+        "elan_output_path": ELAN_OUTPUT_PATH
+    }
+
+    # Return the pipeline configuration
+    return config
