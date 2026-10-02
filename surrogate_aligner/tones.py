@@ -5,21 +5,55 @@
 # =====================================================================================
 
 
+import unicodedata
+
+
 # Function:     parse_tones
 # Inputs:       tone_string | spoken phrase (str)
+#               default_tone | tone for unmarked vowels ("L" or "M")
 # Outputs:      tones | parsed word-level tone patterns (list)
 # Description:  Converts a phrase like "Tukándisyá tasáta kwȇ?" into a list of tone patterns like ["L-H-L-H", "L-H-L", "HL"].
 
-def parse_tones(tone_string):
-    # Vowels with high tone
-    h_vowels = ["á", "é", "í", "ó", "ú", "Á", "É", "Í", "Ó", "Ú"]
+def parse_tones(tone_string, default_tone="L"):
+    if default_tone not in ("L", "M"):
+        raise ValueError('default_tone must be "L" or "M".')
 
-    # Vowels with low tone
-    l_vowels = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]
+    # Unmarked vowels take the selected default tone
+    # Include Latin and IPA vowel letters and their available uppercase forms.
+    # Leave language-dependent vowel letters such as y and w out of this list.
+    default_vowels = [
+        "a", "e", "i", "o", "u", "A", "E", "I", "O", "U",
+        "ɛ", "Ɛ", "ɔ", "Ɔ", "ə", "Ə", "ɨ", "Ɨ", "ʉ", "Ʉ", "ɪ", "Ɩ", "ʊ", "Ʊ",
+        "æ", "Æ", "ø", "Ø", "œ", "Œ", "ɐ", "Ɐ", "ɑ", "Ɑ", "ɒ", "Ɒ",
+        "ɘ", "Ǝ", "ɵ", "Ɵ", "ɜ", "Ɜ", "ɞ", "ɤ", "Ɤ", "ɯ", "Ɯ", "ɶ",
+        "ʌ", "Ʌ", "ʏ", "ɚ", "ɝ",
+    ]
 
-    # Vowels with falling tone
-    f_vowels = ["â", "ê", "î", "ô", "û", "ȃ", "ȇ", "ȋ", "ȏ", "ȗ",
-                "Â", "Ê", "Î", "Ô", "Û", "Ȃ", "Ȇ", "Ȋ", "Ȏ", "Ȗ"]
+    # Use decomposed spellings so each tone mark stays with its vowel
+    h_vowels = [vowel + "\u0301" for vowel in default_vowels]   # Acute: H
+    m_vowels = [vowel + "\u0304" for vowel in default_vowels]   # Macron: M
+    l_vowels = [vowel + "\u0300" for vowel in default_vowels]   # Grave: L
+    sh_vowels = [vowel + "\u030b" for vowel in default_vowels]  # Double acute: SH
+    sl_vowels = [vowel + "\u030f" for vowel in default_vowels]  # Double grave: SL
+
+    # Add unmarked vowels to the selected tone's list
+    if default_tone == "L":
+        l_vowels += default_vowels
+    else:
+        m_vowels += default_vowels
+
+    # Vowels with rising and falling contours
+    lh_vowels = [vowel + "\u030c" for vowel in default_vowels]  # Caron: LH
+    hl_vowels = [vowel + mark for vowel in default_vowels
+                 for mark in ("\u0302", "\u0311")]  # Circumflex / inverted breve: HL
+    mh_vowels = [vowel + "\u1dc4" for vowel in default_vowels]  # Macron-acute: MH
+    lm_vowels = [vowel + "\u1dc5" for vowel in default_vowels]  # Grave-macron: LM
+    ml_vowels = [vowel + "\u1dc6" for vowel in default_vowels]  # Macron-grave: ML
+    hm_vowels = [vowel + "\u1dc7" for vowel in default_vowels]  # Acute-macron: HM
+
+    # Three-part contour labels describe the order of low/high targets
+    lhl_vowels = [vowel + "\u1dc8" for vowel in default_vowels]  # Grave-acute-grave: LHL
+    hlh_vowels = [vowel + "\u1dc9" for vowel in default_vowels]  # Acute-grave-acute: HLH
 
     # Create an empty list for word-level tone patterns
     tones = []
@@ -33,20 +67,46 @@ def parse_tones(tone_string):
         # Create an empty list for this word's tones
         word_tones = []
 
-        # Loop through each character in the word
-        for char in word:
+        # Group each base character with its combining marks
+        characters = []
+        for char in unicodedata.normalize("NFD", word):
+            if unicodedata.combining(char) and characters:
+                characters[-1] += char
+            else:
+                characters.append(char)
 
-            # Check for high-toned vowels
+        # Loop through each character and its tone marks in the word
+        for char in characters:
+
+            # Check for level tones
             if char in h_vowels:
                 word_tones.append("H")
-
-            # Check for low-toned vowels
+            elif char in m_vowels:
+                word_tones.append("M")
             elif char in l_vowels:
                 word_tones.append("L")
+            elif char in sh_vowels:
+                word_tones.append("xH")
+            elif char in sl_vowels:
+                word_tones.append("xL")
 
-            # Check for falling-toned vowels
-            elif char in f_vowels:
+            # Check for contour tones
+            elif char in lh_vowels:
+                word_tones.append("LH")
+            elif char in hl_vowels:
                 word_tones.append("HL")
+            elif char in mh_vowels:
+                word_tones.append("MH")
+            elif char in lm_vowels:
+                word_tones.append("LM")
+            elif char in ml_vowels:
+                word_tones.append("ML")
+            elif char in hm_vowels:
+                word_tones.append("HM")
+            elif char in lhl_vowels:
+                word_tones.append("LHL")
+            elif char in hlh_vowels:
+                word_tones.append("HLH")
 
         # Join this word's tones with hyphens
         tone_pattern = "-".join(word_tones)
