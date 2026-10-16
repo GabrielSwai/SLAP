@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <ANNOTATION_DOCUMENT AUTHOR="" DATE="2026-08-28T01:15:04+03:00" VERSION="3.0" FORMAT="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv2.8.xsd">
 	<HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
-		<MEDIA_DESCRIPTOR MEDIA_URL="file:///Users/gabrielswai/Downloads/Copy of ZOOM0070_lute_downdrift.MOV" MIME_TYPE="video/quicktime" RELATIVE_MEDIA_URL="./Copy of ZOOM0070_lute_downdrift.MOV" />
-		<MEDIA_DESCRIPTOR EXTRACTED_FROM="file:///Users/gabrielswai/Downloads/Copy of ZOOM0070_lute_downdrift.MOV" MEDIA_URL="file:///Users/gabrielswai/Downloads/Copy of ZOOM0070_lute_downdrift.WAV" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./Copy of ZOOM0070_lute_downdrift.WAV" />
+		<MEDIA_DESCRIPTOR MEDIA_URL="./recording.mov" MIME_TYPE="video/quicktime" RELATIVE_MEDIA_URL="./recording.mov" />
+		<MEDIA_DESCRIPTOR EXTRACTED_FROM="./recording.mov" MEDIA_URL="./recording.wav" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./recording.wav" />
 		<PROPERTY NAME="URN">urn:nl-mpi-tools-elan-eaf:64b5e662-6c74-4703-b56d-0bf3fdf4b164</PROPERTY>
 		<PROPERTY NAME="lastUsedAnnotationId">132</PROPERTY>
 		</HEADER>

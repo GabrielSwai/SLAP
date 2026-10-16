@@ -107,6 +107,12 @@ def parse_tones(tone_string, default_tone="L"):
                 word_tones.append("LHL")
             elif char in hlh_vowels:
                 word_tones.append("HLH")
+            elif char[0] in default_vowels:
+                raise ValueError(f'Unsupported vowel marking {char!r} in word {word!r}. Check its transcription.')
+
+        # Ignore punctuation-only tokens but reject words that cannot be interpreted
+        if not word_tones and any(char.isalnum() for char in word):
+            raise ValueError(f'No supported vowels were found in word {word!r}. Check its transcription.')
 
         # Join this word's tones with hyphens
         tone_pattern = "-".join(word_tones)
@@ -158,14 +164,25 @@ def validate_melodies(words, tones):
 # Description:  Combines Kinande words and their tone patterns into a structured sequence.
 
 def make_word_sequence(words, tones):
+    # Reject mismatched inputs rather than silently dropping words through zip
+    if len(words) != len(tones):
+        raise ValueError('Each word must have one tone pattern.')
     # Create an empty list to store word objects
     word_sequence = []
 
     # Loop through each word and its matching tone pattern
     for i, (word, tone_pattern) in enumerate(zip(words, tones)):
 
+        # Punctuation has no tones and must not consume a detected note
+        if not tone_pattern:
+            if any(char.isalnum() for char in word):
+                raise ValueError(f'No tone pattern was provided for word {word!r}.')
+            continue
+
         # Split the word-level tone pattern into individual tones
         tone_list = tone_pattern.split("-")
+        if any(not tone for tone in tone_list):
+            raise ValueError(f'Invalid tone pattern for word {word!r}.')
 
         # Store the word and its tone information together
         word_data = {

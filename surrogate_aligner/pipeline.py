@@ -9,7 +9,7 @@ from .annotations import load_elan, get_elan_segments, add_alignment, save_elan
 from .detection import detect_note_onsets, make_note_intervals
 from .features import extract_pitch, extract_shape
 from .classification import classify_pitches
-from .tones import tokenize_phrase, parse_tones, validate_melodies, make_word_sequence
+from .tones import tokenize_phrase, parse_tones, make_word_sequence
 from .aligner import (
     make_surrogate_sequence,
     align_sequences,
@@ -42,6 +42,8 @@ def run_pipeline(config):
 
     # Create one big alignment list for all segments
     full_alignment = []
+    skipped_segments = []
+    processed_count = 0
 
     # Process each annotated phrase/drumming segment
     print("Processing segments...")
@@ -59,6 +61,17 @@ def run_pipeline(config):
         print(f"    - Phrase: {phrase}")
         print(f"    - Time: {start_time:.2f}–{end_time:.2f}")
 
+        # Validate the transcription before allowing it to consume any detected notes
+        try:
+            words = tokenize_phrase(phrase)
+            tones = parse_tones(phrase)
+            word_sequence = make_word_sequence(words, tones)
+        except ValueError as error:
+            raise ValueError(f"Phrase at {start_time:.3f}s: {error}") from error
+        if not word_sequence:
+            skipped_segments.append((start_time, end_time, "No words with tone patterns."))
+            continue
+
         # Extract this audio segment
         y_segment = extract_audio_segment(y, sr, start_time, end_time)
 
@@ -68,6 +81,10 @@ def run_pipeline(config):
         # Convert onsets into note intervals
         intervals = make_note_intervals(onset_times, start_time, end_time)
 
+        if not intervals:
+            skipped_segments.append((start_time, end_time, "No note onsets detected."))
+            continue
+
         # Extract pitch features
         pitch_features = extract_pitch(y_segment, sr, intervals, start_time)
 
@@ -76,23 +93,6 @@ def run_pipeline(config):
 
         # Classify surrogate notes as H/L
         surrogate_tones = classify_pitches(pitch_features, shape_features)
-
-        # Tokenize Kinande phrase into words
-        words = tokenize_phrase(phrase)
-
-        # Parse Kinande phrase into word-level tone patterns
-        tones = parse_tones(phrase)
-
-        # Check that each word has a tone pattern
-        is_valid = validate_melodies(words, tones)
-
-        # Skip this segment if the word/tone parsing failed
-        if not is_valid:
-            print("  - Skipping segment because word/tone counts do not match.")
-            continue
-
-        # Build structured word sequence
-        word_sequence = make_word_sequence(words, tones)
 
         # Build structured surrogate sequence
         surrogate_sequence = make_surrogate_sequence(intervals, surrogate_tones)
@@ -112,6 +112,14 @@ def run_pipeline(config):
 
         # Add this segment's alignment to the full alignment
         full_alignment.extend(flagged_alignment)
+        processed_count += 1
+
+    # Report every omitted interval rather than presenting a partial export as complete
+    print(f"Aligned {processed_count} of {len(segments)} phrases; {len(skipped_segments)} skipped.")
+    for start, end, reason in skipped_segments:
+        print(f"  - Skipped {start:.3f}–{end:.3f}s: {reason}")
+    if not full_alignment:
+        raise ValueError("No phrases could be aligned; no output was written.")
 
     # Calculate confidence across all aligned segments
     confidence = calculate_confidence(full_alignment)

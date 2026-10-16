@@ -80,10 +80,11 @@ def clear_tier(eaf, tier_name):
 # Inputs:       eaf | loaded ELAN file object
 #               alignment | alignment between Kinande words and surrogate notes (list)
 #               tier_names | name of ELAN tiers where alignment should be added (dict)
+#               ambiguous_surrogate_tones | export H/L surrogate tones as X (bool)
 # Outputs:      eaf | modified ELAN file object
 # Description:  Adds the generated word-to-surrogate alignment to a specified ELAN tier.
 
-def add_alignment(eaf, alignment, tier_names):
+def add_alignment(eaf, alignment, tier_names, ambiguous_surrogate_tones=True):
     # Group tone-level alignment into word-level alignment
     grouped_alignment = group_alignment(alignment)
 
@@ -142,6 +143,14 @@ def add_alignment(eaf, alignment, tier_names):
 
         # Get grouped surrogate tone pattern
         surrogate_tone_pattern = group["surrogate_tone_pattern"]
+
+        # Temporarily mark detected surrogate tones as unknown until classification is reliable
+        # Disable ambiguous_surrogate_tones to restore the original exported tone labels
+        if ambiguous_surrogate_tones:
+            surrogate_tone_pattern = "-".join(
+                "X" if tone in ("H", "L") else tone
+                for tone in group["surrogate_tones"]
+            )
 
         # Add word annotation
         eaf.add_annotation(word_tier, start_ms, end_ms, word)

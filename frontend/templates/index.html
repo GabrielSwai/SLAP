@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8f7">
+    <title>SLAP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_versions['style.css']) }}">
+    <script src="{{ url_for('static', filename='script.js', v=asset_versions['script.js']) }}" defer></script>
+</head>
+<body data-desktop="{{ 'true' if config.get('DESKTOP_MODE') else 'false' }}" data-cleanup-url="{{ url_for('delete_run', run_id='RUN_ID') }}">
+    {% include "partials/navbar.html" %}
+    <main class="container" id="workspace">
+        <h2 class="page-title">Home</h2>
+
+        <div class="workbench">
+            <!-- Upload the recording and its existing ELAN annotations. -->
+            <section aria-labelledby="upload-heading">
+                <h2 id="upload-heading">Source files</h2>
+                <form id="upload-form" action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data">
+                    <fieldset id="upload-fields" class="input-row">
+                        <div class="field"><label for="audio">Recording <span>.wav</span></label><input id="audio" name="audio" type="file" accept=".wav" required></div>
+                        <div class="field"><label for="elan">Annotations <span>.eaf</span></label><input id="elan" name="elan" type="file" accept=".eaf" required></div>
+                        <button type="submit">Upload</button>
+                    </fieldset>
+                </form>
+            </section>
+
+            <!-- Parse tones from the selected ELAN annotation tier. -->
+            <section aria-labelledby="tones-heading">
+                <h2 id="tones-heading">Tone parsing</h2>
+                <form id="parse-form" action="{{ url_for('parse_tones') }}" method="post">
+                    <fieldset id="processing-fields" class="input-row" disabled>
+                        <div class="field"><label for="input-tier">Source tier</label><select id="input-tier" name="input_tier" required><option value="">Upload annotations to load tiers</option></select></div>
+                        <div class="field"><label for="default-tone">Unmarked vowels</label><select id="default-tone" name="default_tone"><option value="L" selected>L — Low</option><option value="M">M — Mid</option></select></div>
+                        <button type="submit">Parse tones</button>
+                    </fieldset>
+                </form>
+            </section>
+
+            <!-- Align detected notes and download the generated ELAN annotations. -->
+            <section class="output-row" aria-labelledby="output-heading">
+                <div><h2 id="output-heading">Alignment</h2><p>Word, spoken-tone, and surrogate-tone tiers.</p></div>
+                <div class="actions">
+                    <form id="detect-form" action="{{ url_for('detect_notes') }}" method="post"><fieldset id="detection-fields" disabled><button type="submit">Detect &amp; Align</button></fieldset></form>
+                    <button id="download" class="primary" type="button" data-url="{{ url_for('download_output', run_id='RUN_ID') }}" disabled>Download .eaf</button>
+                </div>
+            </section>
+            <div class="status-bar"><p id="status" role="status" aria-live="polite">Choose a recording and annotation file to begin.</p></div>
+            <div id="analysis-summary" class="analysis-summary" hidden>
+                <p id="analysis-counts"></p>
+                <ul id="skipped-phrases"></ul>
+            </div>
+        </div>
+        <noscript><p class="error">Enable JavaScript to process recordings.</p></noscript>
+    </main>
+    {% include "partials/footer.html" %}
+</body>
+</html>

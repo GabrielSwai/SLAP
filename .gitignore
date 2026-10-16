@@ -1,9 +1,46 @@
+# Local editor and operating system files
 *.code-workspace
+.DS_Store
+
+# Python environments, bytecode, and development caches
 .venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local recordings, ELAN backups, and personal scratch checks
+input*.wav
+input*.eaf
 *.bak
 *.eaf.001
 *.pfsx
-.DS_Store
-input*.wav
-inpu*.eaf
-test.py
+/test.py
+
+# Generated applications, installers, logs, and build caches
+/build/
+/dist/
+*.app/
+*.dmg
+*.log
+
+# Local environment secrets and signing credentials
+.env
+.env.*
+!.env.example
+!.env.template
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+id_rsa
+id_ed25519
+
+# Keep SLAP.spec, packaging resources, regression tests, and outputs/aligned_output.eaf under version control
